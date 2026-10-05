@@ -77,11 +77,7 @@ export function Hero() {
             <div className="relative lg:-mr-8">
               <PhotoFrame
                 photo={heroPhoto}
-                // TODO: reemplazar por fotografía real del cliente (tablero,
-                // instalación o iluminación con iluminación cálida).
-                alt="Instalación eléctrica: detalle de tablero y cableado"
-                placeholderLabel="Fotografía del cliente — tablero o instalación"
-                placeholderIndex={1}
+                alt={heroPhoto.alt}
                 priority
                 sizes="(min-width: 1024px) 40vw, 100vw"
                 className="aspect-[4/5] w-full"

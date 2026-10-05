@@ -41,10 +41,15 @@ yarn-error.log*
 # se procesan con `npm run images` hacia public/images
 /fotosdetrabajos
 
-# imágenes procesadas: son derivados de ~27 MB que se regeneran con
-# `npm run images`. Mientras las fotos estén sin curar, el sitio usa
-# placeholders. Cuando las etiquetes en /curacion, comentá esta línea.
-/public/images
+# imágenes procesadas del lote de fotos: son derivados de ~27 MB que se
+# regeneran con `npm run images`. Mientras no se curen, el sitio usa
+# placeholders. Cuando las etiquetes en /curacion, comentá estas líneas.
+# `_hero/` NO se ignora: es la foto elegida por el cliente, no un derivado.
+/public/images/_inbox
+/public/images/_wide
+
+# el PNG original de 1.9 MB no se versiona; los JPG optimizados sí
+/imagen principal.png
 
 # material de referencia del cliente: se queda local, no va al repo.
 # estilo.jpeg           -> referencia visual

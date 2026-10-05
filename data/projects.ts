@@ -43,6 +43,10 @@ export type PhotoEntry = {
   /** Prioridad para la home. */
   featured?: boolean;
   orientation?: "portrait" | "landscape" | "square";
+  /** Recorte a sangre para banners y OG. Lo genera el script de imágenes. */
+  wide16x9?: string;
+  /** Recorte intermedio 3:2. */
+  wide3x2?: string;
 };
 
 type Manifest = { photos?: PhotoEntry[] };
@@ -66,10 +70,31 @@ function pick(pool: PhotoEntry[], index: number): PhotoEntry | undefined {
   return pool[safeIndex];
 }
 
-export const heroPhotos = byKind("hero");
+/**
+ * Hero aprobado por el cliente.
+ *
+ * Viene de `imagen principal.png` (1024×1536, vertical 2:3) y se procesó al
+ * mismo pipeline que el resto. Se declara acá y no en `photos.json` a
+ * propósito: es una imagen curada y validada por el cliente, no un derivado
+ * del lote pendiente de clasificar.
+ *
+ * El `alt` describe lo que el cliente confirmó (una instalación eléctrica que
+ * respeta la paleta del sitio), sin inventar qué equipo se ve.
+ */
+const approvedHero: PhotoEntry = {
+  src: "/images/_hero/hero-4x5.jpg",
+  wide16x9: "/images/_hero/hero-16x9.jpg",
+  alt: "Instalación eléctrica realizada, con la paleta del sitio",
+  kind: "hero",
+  title: "Instalación eléctrica",
+  featured: true,
+  orientation: "portrait",
+};
 
-/** Imagen principal del hero. */
-export const heroPhoto = heroPhotos[0];
+export const heroPhotos = [approvedHero, ...byKind("hero")];
+
+/** Imagen principal del hero. Siempre presente: el cliente ya la aprobó. */
+export const heroPhoto = approvedHero;
 
 export const detailPhotos = byKind("detail");
 
