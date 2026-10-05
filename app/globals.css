@@ -16,10 +16,12 @@
   --color-muted: #a3a09a;
   --color-faint: #6e6b66;
 
-  /* Acento. Solo se usa sobre superficie oscura: mantiene contraste AA. */
-  --color-accent: #f5b301;
-  --color-accent-soft: #ffd75e;
-  --color-accent-deep: #b88300;
+  /* Acento dorado cobrizo. Solo se usa sobre superficie oscura.
+     `accent` da 4.32:1 sobre ink (AA para texto grande, al límite para texto
+     normal); `accent-soft` da 6.22:1 y es la opción segura para cuerpo chico. */
+  --color-accent: #d99a4e;
+  --color-accent-soft: #ebc182;
+  --color-accent-deep: #96601f;
 
   /* Tipografía */
   --font-display: var(--font-oswald), "Arial Narrow", sans-serif;

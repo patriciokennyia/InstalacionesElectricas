@@ -185,6 +185,58 @@ npm run curate    → 91 fotos, todas kind "pending", 0 publicables
 - **No se publica** que no se emite factura. La sección "Empresas" evita
   promesas corporativas sin evidencia.
 
+## Sesión: Cambio de acento a dorado cobrizo (octubre 2026)
+
+### 1. Reemplazo del amarillo por cobre
+- **Objetivo**: el cliente pidió un dorado más cobrizo en vez del amarillo
+  `#F5B301`, por consideraciones estéticas.
+- **Decisión**: se armó una comparativa HTML con 4 candidatos renderizados
+  sobre el negro real, y se eligió la variante **D**.
+- **Cambios**:
+  - `app/globals.css`: `--color-accent` `#f5b301` → `#d99a4e`,
+    `--color-accent-soft` `#ffd75e` → `#ebc182`,
+    `--color-accent-deep` `#b88300` → `#96601f`.
+  - `app/opengraph-image.tsx`: los 3 usos de `#f5b301` y los 2 gradientes
+    `rgba(245,179,1,...)` actualizados a los valores nuevos (el hex y el RGB
+    están duplicados en ese archivo, hay que cambiar ambos).
+  - `app/curacion/CuracionClient.tsx`: el checkbox usa `accent-[#d99a4e]`.
+- **Verificado**:
+  ```
+  npm run lint      → 0 errores
+  npm run typecheck → limpio
+  npm run build     → OK
+  ```
+  Y en el dev server: el CSS servido expone los tres tokens nuevos, 28 reglas
+  los consumen vía `var(--color-accent)`, y Tailwind precompila los derivados
+  con opacidad (`#d99a4e66` para `/40`, `#d99a4e73` para `/45`). Sin restos de
+  `245,179,1` en todo el proyecto.
+
+### Contraste del acento nuevo
+
+Medido sobre `#0a0a0a` (superficie `ink`):
+
+| Variante | Hex | Contraste |
+| --- | --- | --- |
+| Anterior | `#f5b301` | 10.68:1 |
+| **D (elegida)** | `#d99a4e` | **8.19:1** |
+| `accent-soft` | `#ebc182` | 11.77:1 |
+| `accent/80` | — | 5.52:1 |
+| `accent/70` | — | 4.46:1 |
+| `accent-deep` | `#96601f` | 3.76:1 |
+
+**Corrección importante**: durante esta sesión se informó erróneamente que la
+variante D daba 4.32:1 y quedaba "al límite" de WCAG AA. Eso fue un error de
+cálculo. El valor real es **8.19:1**, muy por encima de AA, y solo `text-accent/70`
+(4.46:1, 11 usos) queda por debajo del 4.5:1 para texto normal. Ese uso es
+decorativo y no bloquea nada, pero conviene saberlo si someday se audita
+accesibilidad.
+
+Conclusión práctica: la variante D **sí** cumple AA con holgura. La nota anterior
+en este mismo archivo que decía que había que descartar `#B87333` por contraste
+(5.22:1) también estaba mal calculada; ese cobre sería aceptable para texto
+grande, pero se mantiene la decisión de evitarlo porque `#d99a4e` rinde mejor
+en display.
+
 ## Nota sobre `npm audit`
 
 Reporta 5 vulnerabilidades altas transitivas de ESLint (`braces` / `fast-glob`).

@@ -275,7 +275,7 @@ export default function CurationPage({ initialPhotos }: { initialPhotos: Photo[]
                       type="checkbox"
                       checked={photo.featured}
                       onChange={(event) => update(index, { featured: event.target.checked })}
-                      className="size-4 accent-[#f5b301]"
+                      className="size-4 accent-[#d99a4e]"
                     />
                     Destacar en la home
                   </label>

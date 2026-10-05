@@ -47,7 +47,7 @@ export default function OpengraphImage() {
             width: 720,
             height: 720,
             borderRadius: 9999,
-            background: "radial-gradient(circle, rgba(245,179,1,0.22), rgba(245,179,1,0))",
+            background: "radial-gradient(circle, rgba(217,154,78,0.22), rgba(217,154,78,0))",
           }}
         />
 
@@ -56,11 +56,11 @@ export default function OpengraphImage() {
             style={{
               width: 56,
               height: 56,
-              border: "2px solid rgba(245,179,1,0.5)",
+              border: "2px solid rgba(217,154,78,0.5)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color: "#f5b301",
+              color: "#d99a4e",
               fontSize: 30,
             }}
           >
@@ -101,7 +101,7 @@ export default function OpengraphImage() {
               letterSpacing: -2,
               textTransform: "uppercase",
               fontWeight: 700,
-              color: "#f5b301",
+              color: "#d99a4e",
             }}
           >
             Eléctricas
@@ -133,7 +133,7 @@ export default function OpengraphImage() {
               display: "flex",
               fontSize: 30,
               letterSpacing: 3,
-              color: "#f5b301",
+              color: "#d99a4e",
             }}
           >
             {siteConfig.phoneDisplay}
