@@ -166,9 +166,13 @@ npm run curate    → 91 fotos, todas kind "pending", 0 publicables
   `/curacion` → etiquetar → exportar `photos.json` y reemplazar
   `data/photos.json`. Requiere criterio humano: el modelo no tiene visión, así
   que no puede clasificar las fotos por sí mismo.
-- **`public/images` ignorada en git**: cuando se cureen las fotos, comentar esa
-  línea del `.gitignore` para subir los archivos al repo. Si no, el deploy
-  sigue mostrando placeholders.
+- **`public/images/_inbox` y `_wide` ignoradas en git** (el hero en `_hero/` sí
+  se versiona): cuando se cureen las fotos, comentar esas dos líneas del
+  `.gitignore` para subir los archivos al repo. Si no, el deploy sigue
+  mostrando placeholders.
+- **Análisis del lote**: las 91 fotos son de una sola sesión de 12 minutos, sin
+  EXIF. Probablemente son 1-2 trabajos, no 91. Propuesta: elegir 8-12 y marcar
+  el resto como `reject`. Ver la sección de la última sesión.
 - **Videos**: hay 4 MP4 en `fotosdetrabajos/` que quedaron fuera de v1 por
   decisión de diseño. Sin `ffmpeg`/`ffprobe` en el entorno, así que no se pueden
   extraer posters. Decidir si vale la pena incorporarlos.
@@ -236,6 +240,91 @@ en este mismo archivo que decía que había que descartar `#B87333` por contrast
 (5.22:1) también estaba mal calculada; ese cobre sería aceptable para texto
 grande, pero se mantiene la decisión de evitarlo porque `#d99a4e` rinde mejor
 en display.
+
+## Sesión: Hero del cliente y análisis del lote de fotos (octubre 2026)
+
+### 1. La foto del cliente como hero de la home
+- **Objetivo**: usar `imagen principal.png` como imagen principal de la portada,
+  reemplazando el placeholder que venía desde el primer deploy.
+- **Datos técnicos del original**:
+  ```
+  1024 × 1536   vertical, ratio 2:3 (0.667)
+  1.9 MB, PNG sin canal alfa, sRGB, 72 dpi
+  luminancia media 43  → imagen oscura
+  canales: R 61  G 40  B 22  → tonalidad cálida, domina el rojo
+  ```
+- **Procesado**: mismo pipeline que el lote (`position: "attention"`), con tres
+  derivados. De 1.9 MB PNG a 183 KB JPG.
+
+  | Archivo | Dimensiones | Peso | Uso |
+  | --- | --- | --- | --- |
+  | `hero-4x5.jpg` | 1200×1500 | 183 KB | slot del hero (`aspect-[4/5]`) |
+  | `hero-16x9.jpg` | 1920×1080 | 166 KB | banners |
+  | `hero-3x2.jpg` | 1600×1067 | 147 KB | bloques intermedios |
+
+- **Cambios**:
+  - `data/projects.ts`: nueva constante `approvedHero` con la foto, el alt y
+    los recortes. Se declara **fuera** de `photos.json` a propósito: es una
+    imagen validada por el cliente, no un derivado del lote pendiente. Si
+    estuviera en el manifest, `npm run images` la pisaría en la próxima corrida.
+    `heroPhotos` pasa a ser `[approvedHero, ...byKind("hero")]` y `heroPhoto`
+    siempre resuelve a la aprobada, sin depender de la curaduría.
+  - `PhotoEntry`: se agregaron `wide16x9` y `wide3x2` al tipo (el manifest ya
+    los emitía pero el tipo no los declaraba, TS2353).
+  - `components/home/hero.tsx` (`components/home/Hero.tsx`): se eliminó el
+    `TODO`, el `placeholderLabel` y el `placeholderIndex`. El `alt` ahora sale de
+    `heroPhoto.alt` en vez de estar hardcodeado.
+  - `.gitignore`: cambió de ignorar todo `/public/images` a ignorar solo
+    `/public/images/_inbox` y `/public/images/_wide`. **Esto era necesario**: con
+    la regla anterior el hero nunca se hubiera subido al repo ni al deploy.
+    Además se ignora `/imagen principal.png` (el PNG de 1.9 MB no se versiona,
+    los JPG sí).
+- **Verificado**:
+  ```
+  npm run lint / typecheck / build → limpio
+  dev:  <img src="/_next/image?url=%2Fimages%2F_hero%2Fhero-4x5.jpg&w=1920&q=75"
+          alt="Instalación eléctrica realizada, con la paleta del sitio">
+  prod: https://instalaciones-electricas.vercel.app → 200, hero sirviendo
+  ```
+- **Pendiente de verificación humana** (el modelo no tiene visión):
+  - **El recorte 4:5.** La fuente es 2:3 y el slot es 4:5, así que sharp recorta
+    ~800px de ancho con `position: "attention"`, que elige por entropía. Es
+    heurístico: si el punto focal quedó cortado hay que fijar la posición.
+  - **El texto `alt`.** Se puso `"Instalación eléctrica realizada, con la paleta
+    del sitio"`, que es literalmente lo que confirmó el cliente. Es honesto pero
+    vago para SEO y accesibilidad.
+
+### 2. Análisis del lote de 91 fotos (aún sin tocar)
+Se analizaron las 91 imágenes para decidir cómo curarlas. El hallazgo cambia el
+planteo original:
+
+- **Las 91 son de un solo día y una sola sesión**: 2 de octubre de 2026, entre
+  las 18:44 y las 18:56. Doce minutos.
+- **Sin EXIF en ninguna**: ni cámara, ni modelo, ni GPS, ni fecha. WhatsApp las
+  stripped por completo.
+- 74 verticales, 12 apaisadas; casi todas de ~1500px de lado mayor.
+- 29 archivos llevan sufijo `(1)`, `(2)` de WhatsApp, pero **solo un par es
+  duplicado real** (hash perceptual 32×32 grayscale). El resto son fotos distintas.
+- 4 MP4 del mismo minuto (4.3 MB, 3.8 MB, 6.5 MB, 6.2 MB).
+
+**Conclusión**: es probablemente **uno o dos trabajos**, no 91. Armar 91 fichas de
+"trabajos realizados" con el mismo material sería redundante.
+
+**Plan propuesto al cliente** (aún no ejecutado):
+1. Elegir las 8 a 12 mejores en `/curacion`; el resto se marca `reject`.
+2. Ordenarlas en 2 o 3 trabajos reales: hero, un par antes/después si existe, y
+   el resto como apoyo.
+3. Cargar un `alt` descriptivo de una línea cada una.
+
+Reduce 91 decisiones a ~10.
+
+**Mejora pendiente de `/curacion`**: hoy muestra 91 tarjetas con 7 campos cada
+una en grilla de 4 columnas, lo que es inmanejable. La idea es pasarlo a un modo
+"elección" de una foto a la vez, pantalla completa, con botones grandes para
+`hero` / `trabajo` / `descartar` / `servicio`, y una segunda pantalla solo para
+cargar los textos de las que quedaron.
+
+---
 
 ## Nota sobre `npm audit`
 
