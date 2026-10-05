@@ -1,0 +1,47 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# next.js
+/.next/
+/out/
+next-env.d.ts
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+Thumbs.db
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files
+.env
+.env*.local
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+
+# fotos originales del cliente: no subirlas al repo,
+# se procesan con `npm run images` hacia public/images
+/fotosdetrabajos
+
+# imágenes procesadas: son derivados de ~27 MB que se regeneran con
+# `npm run images`. Mientras las fotos estén sin curar, el sitio usa
+# placeholders. Cuando las etiquetes en /curacion, comentá esta línea.
+/public/images

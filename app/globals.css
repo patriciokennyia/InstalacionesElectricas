@@ -1,0 +1,277 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   TOKENS
+   ========================================================================== */
+@theme {
+  /* Superficies, de la más profunda a la más clara */
+  --color-ink: #0a0a0a;
+  --color-carbon: #121212;
+  --color-graphite: #1c1c1c;
+  --color-slate: #262626;
+  --color-bone: #f5f3ef;
+
+  /* Tinta sobre fondo oscuro */
+  --color-chalk: #f7f6f4;
+  --color-muted: #a3a09a;
+  --color-faint: #6e6b66;
+
+  /* Acento. Solo se usa sobre superficie oscura: mantiene contraste AA. */
+  --color-accent: #f5b301;
+  --color-accent-soft: #ffd75e;
+  --color-accent-deep: #b88300;
+
+  /* Tipografía */
+  --font-display: var(--font-oswald), "Arial Narrow", sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  /* Ritmo */
+  --spacing-header: 4.5rem;
+
+  /* Movimiento */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Contenedor editorial */
+  --container-page: 90rem;
+}
+
+/* ==========================================================================
+   BASE
+   ========================================================================== */
+@layer base {
+  * {
+    border-color: color-mix(in oklab, var(--color-chalk) 12%, transparent);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    /* Compensa el header sticky al saltar a un ancla */
+    scroll-padding-top: 5.5rem;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background-color: var(--color-ink);
+    color: var(--color-chalk);
+    font-family: var(--font-sans);
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    line-height: 0.95;
+    text-wrap: balance;
+  }
+
+  /* El amarillo nunca va sobre blanco: se fuerza a fondo oscuro. */
+  ::selection {
+    background-color: var(--color-accent);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+    border-radius: 1px;
+  }
+
+  /* Los focus dentro de superficies oscuras mantienen el mismo acento */
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    font: inherit;
+    color: inherit;
+  }
+
+  /* Los selects sobre fondo oscuro necesitan opciones legibles */
+  select option {
+    background-color: var(--color-graphite);
+    color: var(--color-chalk);
+  }
+}
+
+/* ==========================================================================
+   UTILIDADES
+   ========================================================================== */
+
+/* Contenedor editorial con gutter responsive */
+@utility container-page {
+  width: 100%;
+  max-width: var(--container-page);
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+  @media (width >= 48rem) {
+    padding-inline: 2.5rem;
+  }
+  @media (width >= 80rem) {
+    padding-inline: 3.5rem;
+  }
+}
+
+/* Hairline: línea de 1px que se ve como detalle técnico */
+@utility hairline {
+  border: 1px solid color-mix(in oklab, var(--color-chalk) 12%, transparent);
+}
+
+/* Rejilla técnica para placeholders: no es un cuadrado gris, es un plano */
+@utility technical-grid {
+  background-image:
+    linear-gradient(
+      to right,
+      color-mix(in oklab, var(--color-chalk) 8%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--color-chalk) 8%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 28px 28px;
+}
+
+/* Filtro de unificación visual: fotos de distintos teléfonos y fechas
+   pasan a un mismo registro. Cero requests extra. */
+@utility photo-grade {
+  filter: contrast(1.06) saturate(0.88) brightness(0.96);
+  transition: filter 700ms var(--ease-out-expo);
+}
+
+@utility photo-grade-hover {
+  &:hover {
+    filter: contrast(1.1) saturate(0.98) brightness(1.02);
+  }
+}
+
+/* Viñeta para asentar las fotos sobre el negro */
+@utility vignette {
+  background: radial-gradient(
+    120% 90% at 50% 40%,
+    transparent 30%,
+    color-mix(in oklab, var(--color-ink) 55%, transparent) 100%
+  );
+}
+
+/* Enlace con subrayado amarillo que crece */
+@utility link-accent {
+  position: relative;
+  display: inline-block;
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -3px;
+    height: 1px;
+    width: 100%;
+    background-color: var(--color-accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 450ms var(--ease-out-expo);
+  }
+  &:hover::after,
+  &:focus-visible::after {
+    transform: scaleX(1);
+  }
+}
+
+/* ==========================================================================
+   REVEAL ON SCROLL
+   CSS-first: una sola transición, sin librería de animación.
+   ========================================================================== */
+@layer components {
+  .reveal {
+    opacity: 0;
+    transform: translateY(22px);
+    transition:
+      opacity 900ms var(--ease-out-expo),
+      transform 900ms var(--ease-out-expo);
+    transition-delay: var(--reveal-delay, 0ms);
+    will-change: opacity, transform;
+  }
+
+  .reveal[data-state="in"] {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* La línea del SectionLabel crece al entrar. Fuera de un <Reveal> se queda
+     en escala 1: no hay animación sin disparador. */
+  .reveal[data-state="out"] .reveal-line {
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 1100ms var(--ease-out-expo);
+    transition-delay: var(--reveal-delay, 120ms);
+  }
+
+  .reveal[data-state="in"] .reveal-line,
+  .reveal-line[data-state="in"] {
+    transform: scaleX(1);
+  }
+
+  /* Marquee lento y discreto de la cinta de confianza */
+  .marquee-track {
+    animation: marquee 38s linear infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    .reveal,
+    .reveal-line {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+
+    .reveal[data-state="out"] .reveal-line,
+    .reveal-line {
+      transform: scaleX(1);
+    }
+
+    .marquee-track {
+      animation: none;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes pulse-line {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
