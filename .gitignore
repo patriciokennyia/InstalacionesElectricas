@@ -45,3 +45,9 @@ yarn-error.log*
 # `npm run images`. Mientras las fotos estén sin curar, el sitio usa
 # placeholders. Cuando las etiquetes en /curacion, comentá esta línea.
 /public/images
+
+# material de referencia del cliente: se queda local, no va al repo.
+# estilo.jpeg           -> referencia visual
+# *.docx                -> minuta de la reunión, ya volcada a data/services.ts
+/estilo.jpeg
+*.docx
